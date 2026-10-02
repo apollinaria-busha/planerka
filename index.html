@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0d; --bg2:#161616; --bg3:#1d1d1d; --line:#262626;
+  --yellow:#FFAD05; --yellow-soft:rgba(255,173,5,.08); --txt:#f2f2f2; --gray:#9a9a9a; --dim:#5a5a5a;
+  --coral:#FF8562;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;background:var(--bg);color:var(--txt);}
+body{font-family:'Montserrat',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
+button,input{font-family:inherit;}
+
+.wrap{max-width:560px;margin:0 auto;padding:28px 16px calc(40px + env(safe-area-inset-bottom));}
+
+/* hero */
+.kicker{color:var(--yellow);font-size:11px;font-weight:700;letter-spacing:3.5px;text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.kicker::before{content:'';width:22px;height:2px;background:var(--yellow);border-radius:2px;}
+h1{font-size:clamp(32px,9vw,46px);font-weight:900;line-height:1;margin:14px 0 0;letter-spacing:-1px;text-transform:uppercase;}
+h1 .y{color:var(--yellow);display:block;}
+.lead{color:var(--gray);font-size:15px;line-height:1.55;margin:16px 0 0;}
+.lead b{color:var(--txt);font-weight:600;}
+.bar{height:3px;width:120px;background:linear-gradient(90deg,var(--yellow),transparent);margin-top:22px;border-radius:2px;}
+
+.facts{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;}
+.fact{background:var(--bg2);border:1px solid var(--line);border-radius:30px;padding:8px 13px;font-size:12px;font-weight:600;color:#d6d6d6;}
+.fact b{color:var(--yellow);}
+
+/* steps */
+.step{margin-top:34px;}
+.step-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;}
+.step-head h2{margin:0;font-size:17px;font-weight:800;letter-spacing:.2px;display:flex;gap:10px;align-items:baseline;}
+.step-head h2 span{color:var(--yellow);font-size:13px;font-weight:800;}
+.free{font-size:12px;color:var(--gray);font-weight:600;white-space:nowrap;}
+.free b{color:var(--yellow);}
+
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.day{appearance:none;border:1.5px solid var(--line);background:var(--bg2);color:var(--txt);border-radius:14px;padding:14px 6px 12px;cursor:pointer;text-align:center;transition:all .18s ease;}
+.day .d1{display:block;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;}
+.day .d2{display:block;white-space:nowrap;font-size:11px;color:var(--gray);margin-top:4px;font-weight:600;}
+.day .d3{display:block;white-space:nowrap;font-size:9.5px;color:var(--dim);margin-top:6px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.day.on{background:var(--yellow);border-color:var(--yellow);color:#0d0d0d;}
+.day.on .d2,.day.on .d3{color:rgba(13,13,13,.7);}
+.day.full .d3{color:var(--coral);}
+
+.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.slot{appearance:none;position:relative;border:1.5px solid var(--line);background:var(--bg2);color:var(--txt);border-radius:14px;padding:16px 12px;cursor:pointer;text-align:left;transition:all .15s ease;min-height:68px;}
+.slot .t{font-size:22px;font-weight:800;letter-spacing:-.3px;}
+.slot .t small{font-size:13px;font-weight:600;color:var(--gray);margin-left:2px;}
+.slot .loc{display:block;font-size:11px;color:var(--gray);margin-top:3px;font-weight:500;}
+.slot:active{transform:scale(.97);}
+.slot.sel{border-color:var(--yellow);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(255,173,5,.15);}
+.slot.taken{cursor:not-allowed;background:transparent;border-style:dashed;border-color:#1f1f1f;}
+.slot.taken .t{color:var(--dim);text-decoration:line-through;text-decoration-color:var(--yellow);text-decoration-thickness:2px;}
+.slot.taken .t small{color:var(--dim);}
+.slot.taken .loc{color:#444;}
+.slot.mine{border-color:var(--yellow);border-style:solid;background:var(--yellow);color:#0d0d0d;cursor:default;}
+.slot.mine .t,.slot.mine .t small,.slot.mine .loc{color:#0d0d0d;text-decoration:none;}
+
+.note.tz{margin:0 0 14px;}
+.note{margin-top:16px;background:var(--yellow-soft);border-left:3px solid var(--yellow);padding:12px 14px;border-radius:8px;color:#d0d0d0;font-size:13px;line-height:1.55;}
+.note b{color:var(--yellow);}
+
+.loading{color:var(--gray);font-size:13px;padding:24px 0;text-align:center;grid-column:1/-1;}
+
+/* sheet */
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;background:#121212;border-top:2px solid var(--yellow);border-radius:22px 22px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);max-width:560px;margin:0 auto;}
+.open .veil{opacity:1;pointer-events:auto;}
+.open .sheet{transform:none;}
+.grip{width:40px;height:4px;border-radius:4px;background:#333;margin:0 auto 14px;}
+.sheet .what{font-size:11px;color:var(--yellow);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;}
+.sheet .when{font-size:24px;font-weight:900;margin-top:6px;letter-spacing:-.3px;}
+.sheet .sub{font-size:13px;color:var(--gray);margin-top:4px;line-height:1.5;}
+label{display:block;margin-top:16px;font-size:12px;font-weight:700;color:#cfcfcf;letter-spacing:.3px;}
+.inp{display:flex;align-items:center;margin-top:7px;background:var(--bg2);border:1.5px solid var(--line);border-radius:12px;transition:border-color .15s;}
+.inp:focus-within{border-color:var(--yellow);}
+.inp span{padding-left:14px;color:var(--yellow);font-weight:800;font-size:16px;}
+.inp input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--txt);font-size:16px;font-weight:600;padding:14px;}
+.inp span+input{padding-left:3px;}
+.inp input::placeholder{color:#555;font-weight:500;}
+.err{color:var(--coral);font-size:13px;font-weight:600;margin-top:12px;min-height:0;}
+.btn{appearance:none;width:100%;margin-top:18px;border:0;border-radius:14px;background:var(--yellow);color:#0d0d0d;font-size:15px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;padding:17px;cursor:pointer;transition:transform .1s,opacity .2s;}
+.btn:active{transform:scale(.98);}
+.btn[disabled]{opacity:.5;}
+.ghost{appearance:none;width:100%;margin-top:8px;border:0;background:transparent;color:var(--gray);font-size:13px;font-weight:600;padding:10px;cursor:pointer;}
+
+/* done */
+.done{display:none;text-align:center;padding:30px 0 10px;}
+.is-done .done{display:block;}
+.is-done .picker{display:none;}
+.badge{width:76px;height:76px;border-radius:50%;background:var(--yellow);color:#0d0d0d;display:grid;place-items:center;margin:0 auto;font-size:38px;font-weight:900;}
+.done h2{font-size:28px;font-weight:900;text-transform:uppercase;margin:20px 0 0;letter-spacing:-.5px;}
+.ticket{margin:22px auto 0;background:var(--bg2);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-align:left;}
+.ticket .top{background:var(--yellow);color:#0d0d0d;padding:16px 18px;}
+.ticket .top small{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;opacity:.7;}
+.ticket .top div{font-size:26px;font-weight:900;margin-top:2px;}
+.ticket .row{display:flex;justify-content:space-between;gap:12px;padding:13px 18px;border-top:1px dashed #2c2c2c;font-size:13px;}
+.ticket .row span{color:var(--gray);}
+.ticket .row b{font-weight:700;text-align:right;}
+.done p{color:var(--gray);font-size:14px;line-height:1.55;margin:18px 0 0;}
+
+.foot{margin-top:40px;text-align:center;color:#444;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;}
+.foot b{color:var(--yellow);}
+
+.toast{position:fixed;left:50%;top:16px;transform:translate(-50%,-140%);background:var(--coral);color:#0d0d0d;font-weight:700;font-size:13px;padding:11px 16px;border-radius:12px;z-index:20;transition:transform .25s,visibility .25s;visibility:hidden;max-width:calc(100% - 32px);text-align:center;}
+.toast.show{transform:translate(-50%,0);visibility:visible;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="kicker">Программа Код Креатора</div>
+  <h1>Запись на планерку <span class="y">с Бушей</span></h1>
+  <p class="lead">Выбери день и время нашего <b>еженедельного созвона</b>. Слот закрепляется за тобой на всю программу — каждую неделю в это время, <b>до 24 ноября</b>.</p>
+  <div class="bar"></div>
+  <div class="facts">
+    <div class="fact">⏱ <b>1 час</b></div>
+    <div class="fact">🗓 <b>раз в неделю</b></div>
+    <div class="fact">🕐 время <b>МСК</b></div>
+  </div>
+
+  <div class="picker">
+    <div class="step">
+      <div class="step-head"><h2><span>01</span>День недели</h2></div>
+      <div class="days" id="days"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><h2><span>02</span>Время</h2><div class="free" id="free"></div></div>
+      <div class="note tz" id="tzNote" hidden></div>
+      <div class="slots" id="slots"><div class="loading">Загружаю расписание…</div></div>
+    </div>
+  </div>
+
+  <div class="done" id="done">
+    <div class="badge">✓</div>
+    <h2>Ты в расписании</h2>
+    <div class="ticket">
+      <div class="top"><small>Планерка с Бушей</small><div id="tWhen"></div></div>
+      <div class="row"><span>Каждую неделю</span><b id="tDay"></b></div>
+      <div class="row" id="tLocalRow"><span>По твоему времени</span><b id="tLocal"></b></div>
+      <div class="row"><span>Первая встреча</span><b id="tFirst"></b></div>
+      <div class="row"><span>Последняя</span><b id="tLast"></b></div>
+      <div class="row"><span>Записана</span><b id="tWho"></b></div>
+    </div>
+    <p>Ссылку на созвон пришлю в Telegram перед встречей. Если нужно поменять время — напиши мне лично.</p>
+  </div>
+
+  <div class="foot">by <b>Busha</b> · Код Креатора</div>
+</div>
+
+<div id="sheetWrap">
+  <div class="veil" id="veil"></div>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="grip"></div>
+    <div class="what">Твой слот</div>
+    <div class="when" id="sWhen"></div>
+    <div class="sub" id="sLocal" style="color:var(--yellow);font-weight:700"></div>
+    <div class="sub" id="sSub"></div>
+    <label for="fName">Имя</label>
+    <div class="inp"><input id="fName" autocomplete="given-name" placeholder="Как тебя зовут" maxlength="60"></div>
+    <label for="fTg">Ник в Telegram</label>
+    <div class="inp"><span>@</span><input id="fTg" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="nickname" maxlength="40"></div>
+    <div class="err" id="err"></div>
+    <button class="btn" id="go">Записаться</button>
+    <button class="ghost" id="cancel">Выбрать другое время</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var LAST = '2026-11-24';
+var MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var S = { days: [], hours: [], blocked: [], taken: [], day: null, slot: null, busy: false };
+var $ = function (id) { return document.getElementById(id); };
+
+// --- мост к серверу (в превью без Apps Script — заглушка) ---
+var API = 'https://script.google.com/macros/s/AKfycbwoHVd_JlBi3J5GoURAS34GUl7UNrPz3n48zU80JUhHYA6fxJcHucccpD5mVG4tGv7iZQ/exec';
+var USE_MOCK = /[?&]mock\b/.test(location.search);
+function call(fn, args) {
+  args = args || [];
+  if (window.google && google.script && google.script.run) {
+    return new Promise(function (res, rej) {
+      var r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
+      r[fn].apply(r, args);
+    });
+  }
+  if (USE_MOCK) return new Promise(function (res) { setTimeout(function () { res(mock[fn].apply(null, args)); }, 350); });
+  // анонимный запрос (без cookies Google) — работает при любом количестве аккаунтов в браузере
+  var q = fn === 'book'
+    ? '?api=book&slot=' + encodeURIComponent(args[0]) + '&name=' + encodeURIComponent(args[1]) + '&tg=' + encodeURIComponent(args[2])
+    : '?api=state';
+  return fetch(API + q + '&_=' + Date.now(), { credentials: 'omit', cache: 'no-store', redirect: 'follow' })
+    .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
+}
+var mock = {
+  _t: ['tue-10', 'tue-14', 'sat-12'],
+  getState: function () {
+    return { days: [
+      { id: 'tue', label: 'Вторник', short: 'Вт', first: '2026-10-06' },
+      { id: 'wed', label: 'Среда', short: 'Ср', first: '2026-10-07' },
+      { id: 'fri', label: 'Пятница', short: 'Пт', first: '2026-10-09' },
+      { id: 'sat', label: 'Суббота', short: 'Сб', first: '2026-10-10' }],
+      hours: [10,11,12,13,14,15,16,17], blocked: ['tue-11'], taken: mock._t.slice() };
+  },
+  book: function (slot) { mock._t.push(slot); return { ok: true, slot: slot }; }
+};
+
+function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+
+function fmtDate(iso, withDow) {
+  var p = iso.split('-');
+  return Number(p[2]) + ' ' + MONTHS[Number(p[1]) - 1];
+}
+var MSHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+function shortDate(iso) { var p = iso.split('-'); return Number(p[2]) + ' ' + MSHORT[Number(p[1]) - 1]; }
+function plural(n, a, b, c) { var m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+// разница с МСК для подсказки «у тебя это …»
+var tzShift = (function () {
+  var mskOffset = 180; // UTC+3
+  var local = -new Date().getTimezoneOffset();
+  return (local - mskOffset) / 60;
+})();
+function localHour(h) { return ((h + tzShift) % 24 + 24) % 24; }
+var TZ = (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })();
+function zoneLabel() {
+  var name = '', off = '';
+  try { name = new Intl.DateTimeFormat('ru', { timeZoneName: 'long' }).formatToParts(new Date()).filter(function (p) { return p.type === 'timeZoneName'; })[0].value; } catch (e) {}
+  try { off = new Intl.DateTimeFormat('en', { timeZoneName: 'shortOffset' }).formatToParts(new Date()).filter(function (p) { return p.type === 'timeZoneName'; })[0].value; } catch (e) {}
+  var city = TZ ? TZ.split('/').pop().replace(/_/g, ' ') : '';
+  return { name: name || city, off: off, city: city };
+}
+// местное время зрителя для слота (по дате первой встречи — учитывает переход на зимнее время)
+function localTime(firstIso, h) {
+  var p = firstIso.split('-');
+  var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], h - 3, 0));
+  var t = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  var dd = (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(+p[0], +p[1] - 1, +p[2])) / 864e5;
+  return t + (dd > 0 ? ' (след. день)' : dd < 0 ? ' (пред. день)' : '');
+}
+function sameAsMsk(firstIso, h) { return localTime(firstIso, h) === pad(h) + ':00'; }
+
+function lastDateFor(day) {
+  var d = new Date(day.first + 'T12:00:00'), end = new Date(LAST + 'T12:00:00'), last = new Date(d);
+  while (d <= end) { last = new Date(d); d.setDate(d.getDate() + 7); }
+  return last.getFullYear() + '-' + pad(last.getMonth() + 1) + '-' + pad(last.getDate());
+}
+
+function hoursFor(dayId) { return S.hours.filter(function (h) { return S.blocked.indexOf(dayId + '-' + h) < 0; }); }
+function renderDays() {
+  $('days').innerHTML = '';
+  S.days.forEach(function (d) {
+    var freeN = hoursFor(d.id).filter(function (h) { return S.taken.indexOf(d.id + '-' + h) < 0; }).length;
+    var b = document.createElement('button');
+    b.className = 'day' + (S.day === d.id ? ' on' : '') + (freeN ? '' : ' full');
+    b.innerHTML = '<span class="d1">' + d.short + '</span><span class="d2">с ' + shortDate(d.first) + '</span><span class="d3">' + (freeN ? freeN + ' ' + plural(freeN, 'место', 'места', 'мест') : 'всё занято') + '</span>';
+    b.onclick = function () { S.day = d.id; S.slot = null; renderDays(); renderSlots(); store('kk_day', d.id); };
+    $('days').appendChild(b);
+  });
+}
+
+function renderSlots() {
+  var day = S.days.filter(function (d) { return d.id === S.day; })[0];
+  var box = $('slots');
+  box.innerHTML = '';
+  var mine = store('kk_booked');
+  var freeN = 0;
+  hoursFor(S.day).forEach(function (h) {
+    var id = S.day + '-' + h, taken = S.taken.indexOf(id) >= 0, isMine = mine && mine.slot === id;
+    if (!taken) freeN++;
+    var b = document.createElement('button');
+    b.className = 'slot' + (isMine ? ' mine' : taken ? ' taken' : '') + (S.slot === id ? ' sel' : '');
+    var loc = isMine ? 'это твой слот' : taken ? 'занято' : 'у тебя ' + localTime(day.first, h);
+    b.innerHTML = '<div class="t">' + pad(h) + ':00<small>–' + pad(h + 1) + ':00</small></div><span class="loc">' + loc + '</span>';
+    if (taken) b.disabled = true;
+    else b.onclick = function () { S.slot = id; renderSlots(); openSheet(day, h); };
+    box.appendChild(b);
+  });
+  $('free').innerHTML = 'свободно <b>' + freeN + '</b> из ' + hoursFor(S.day).length;
+}
+
+function openSheet(day, h) {
+  $('sWhen').textContent = day.label + ', ' + pad(h) + ':00 МСК';
+  $('sLocal').textContent = sameAsMsk(day.first, h) ? '' : 'У тебя это ' + localTime(day.first, h);
+  $('sSub').textContent = 'Каждую неделю с ' + fmtDate(day.first) + ' по ' + fmtDate(lastDateFor(day)) + ' · 1 час';
+  $('err').textContent = '';
+  var saved = store('kk_form') || {};
+  if (!$('fName').value && saved.name) $('fName').value = saved.name;
+  if (!$('fTg').value && saved.tg) $('fTg').value = saved.tg;
+  document.body.classList.add('open');
+}
+function closeSheet() { document.body.classList.remove('open'); S.slot = null; renderSlots(); }
+
+function toast(msg) {
+  var t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 3500);
+}
+
+function showDone(slot, name, tg) {
+  var p = slot.split('-'), day = S.days.filter(function (d) { return d.id === p[0]; })[0], h = Number(p[1]);
+  $('tWhen').textContent = day.label + ' · ' + pad(h) + ':00 МСК';
+  $('tDay').textContent = day.label.toLowerCase() + ', ' + pad(h) + ':00–' + pad(h + 1) + ':00';
+  $('tFirst').textContent = fmtDate(day.first);
+  $('tLocal').textContent = localTime(day.first, h);
+  $('tLocalRow').style.display = sameAsMsk(day.first, h) ? 'none' : '';
+  $('tLast').textContent = fmtDate(lastDateFor(day));
+  $('tWho').textContent = name + (tg ? ' · ' + tg : '');
+  document.body.classList.add('is-done');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+$('veil').onclick = closeSheet;
+$('cancel').onclick = closeSheet;
+$('go').onclick = function () {
+  if (S.busy) return;
+  var name = $('fName').value.trim(), tg = $('fTg').value.trim().replace(/^@+/, '').replace(/^https?:\/\/t\.me\//i, '');
+  if (!name) { $('err').textContent = 'Напиши своё имя'; $('fName').focus(); return; }
+  if (!/^[A-Za-z0-9_]{3,32}$/.test(tg)) { $('err').textContent = 'Проверь ник в Telegram — латиница, цифры и _'; $('fTg').focus(); return; }
+  S.busy = true; $('go').disabled = true; $('go').textContent = 'Записываю…';
+  store('kk_form', { name: name, tg: tg });
+  var slot = S.slot;
+  call('book', [slot, name, tg]).then(function (r) {
+    S.busy = false; $('go').disabled = false; $('go').textContent = 'Записаться';
+    if (r.ok) {
+      S.taken.push(slot);
+      store('kk_booked', { slot: slot, name: name, tg: '@' + tg });
+      document.body.classList.remove('open');
+      showDone(slot, name, '@' + tg);
+    } else if (r.error === 'taken') {
+      S.taken = r.taken; closeSheet(); renderDays();
+      toast('Ой, это время только что заняли — выбери другое');
+    } else if (r.error === 'already') {
+      S.taken = r.taken; store('kk_booked', { slot: r.slot, name: name, tg: '@' + tg });
+      document.body.classList.remove('open');
+      showDone(r.slot, name, '@' + tg);
+      toast('Ты уже записана — вот твой слот');
+    } else {
+      $('err').textContent = 'Проверь имя и ник';
+    }
+  }).catch(function () {
+    S.busy = false; $('go').disabled = false; $('go').textContent = 'Записаться';
+    $('err').textContent = 'Не получилось отправить. Проверь интернет и попробуй ещё раз.';
+  });
+};
+
+function load(first) {
+  return call('getState').then(function (st) {
+    S.days = st.days; S.hours = st.hours; S.blocked = st.blocked || []; S.taken = st.taken;
+    if (first) {
+      var remembered = store('kk_day');
+      S.day = S.days.some(function (d) { return d.id === remembered; }) ? remembered : S.days[0].id;
+      if (true) {
+        var n = $('tzNote'), z = zoneLabel(), d0 = S.days[0]; n.hidden = false;
+        n.innerHTML = sameAsMsk(d0.first, S.hours[0])
+          ? '📍 Твой часовой пояс совпадает с <b>московским</b> — время на кнопках и есть твоё.'
+          : '📍 Твой часовой пояс: <b>' + z.name + '</b>' + (z.off ? ' (' + z.off.replace('GMT', 'UTC') + ')' : '') + '.<br>Крупно — время <b>МСК</b>, под ним — <b>твоё местное</b>.';
+      }
+    }
+    if (!document.body.classList.contains('open')) { renderDays(); renderSlots(); }
+  });
+}
+load(true).catch(function () { $('slots').innerHTML = '<div class="loading">Не получилось загрузить. Обнови страницу.</div>'; });
+setInterval(function () { if (!document.hidden && !S.busy) load(false).catch(function () {}); }, 20000);
+</script>
+</body>
+</html>
