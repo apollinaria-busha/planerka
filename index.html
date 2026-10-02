@@ -197,8 +197,16 @@ function call(fn, args) {
   var q = fn === 'book'
     ? '?api=book&slot=' + encodeURIComponent(args[0]) + '&name=' + encodeURIComponent(args[1]) + '&tg=' + encodeURIComponent(args[2])
     : '?api=state';
-  return fetch(API + q + '&_=' + Date.now(), { credentials: 'omit', cache: 'no-store', redirect: 'follow' })
-    .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
+  // Google изредка отвечает разовой ошибкой — пробуем до 4 раз (повторная запись безопасна: сервер вернёт «already»)
+  function attempt(n) {
+    return fetch(API + q + '&_=' + Date.now(), { credentials: 'omit', cache: 'no-store', redirect: 'follow' })
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .catch(function (e) {
+        if (n >= 3) throw e;
+        return new Promise(function (ok) { setTimeout(ok, 800 * (n + 1)); }).then(function () { return attempt(n + 1); });
+      });
+  }
+  return attempt(0);
 }
 var mock = {
   _t: ['tue-10', 'tue-14', 'sat-12'],
