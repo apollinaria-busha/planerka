@@ -212,10 +212,10 @@ var mock = {
   _t: ['tue-10', 'tue-14', 'sat-12'],
   getState: function () {
     return { days: [
-      { id: 'tue', label: 'Вторник', short: 'Вт', first: '2026-10-06' },
-      { id: 'wed', label: 'Среда', short: 'Ср', first: '2026-10-07' },
-      { id: 'fri', label: 'Пятница', short: 'Пт', first: '2026-10-09' },
-      { id: 'sat', label: 'Суббота', short: 'Сб', first: '2026-10-10' }],
+      { id: 'tue', label: 'Вторник', short: 'Вт', first: '2026-10-13' },
+      { id: 'wed', label: 'Среда', short: 'Ср', first: '2026-10-14' },
+      { id: 'fri', label: 'Пятница', short: 'Пт', first: '2026-10-16' },
+      { id: 'sat', label: 'Суббота', short: 'Сб', first: '2026-10-17' }],
       hours: [10,11,12,13,14,15,16,17], blocked: ['tue-11'], taken: mock._t.slice() };
   },
   book: function (slot) { mock._t.push(slot); return { ok: true, slot: slot }; }
